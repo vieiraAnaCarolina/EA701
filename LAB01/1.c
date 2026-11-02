@@ -1,5 +1,3 @@
-/* Maria Letícia Gomes Braga dos Reis - 281318 e Ana Carolina Vieira de Araújo - 248784*/
-
 #include<stdio.h>
 const unsigned long int sequencia = 0x034A2D19;
 
