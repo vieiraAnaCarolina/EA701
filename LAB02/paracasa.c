@@ -46,6 +46,8 @@ while(1){
         if ((estado_anterior == 0x08) && (estado_atual == 0)) {
             _delay_ms(20); 
 
+            if(estado_anterior == 0x08){
+
             if (!vermelho && !verde && !azul) {
                 *ponteiro_portb |= 0x02;
             }
@@ -70,6 +72,7 @@ while(1){
                 *ponteiro_portb &= ~0x0E; 
             }
         }
+    }
 
         estado_anterior = estado_atual;
     }

@@ -14,16 +14,17 @@ int main(void) {
     *ponteiro_ddrb  |= 0x20;  // Liga o BIT 5 do ddrb do led para 1 (SAIDA)
     *ponteiro_ddrd  &= ~0x04; // Liga o BIT 2 do ddrd do botão para 0 (ENTRADA)
 
-    unsigned char estado_anterior = 0x04;
+    unsigned char estado_anterior = 0x04; //BOTAO SOLTO
     
     while (1) {
         
-        unsigned char estado_atual = (*ponteiro_pind & 0x04);
+        unsigned char estado_atual = (*ponteiro_pind & 0x04); FAZ A LEITURA NOVAMENTE
         //Apenas troca o LED quando botão apertado (estado atual 0)
-        if (estado_anterior == 0x04 && estado_atual == 0){ 
+        if (estado_anterior == 0x04 && estado_atual == 0){  //SE ERA 1 E AGORA É 0
             _delay_ms(20); 
-            *ponteiro_portb ^= 0x20;
-            
+            if (estado_atual == 0){ //SE MANTEM EM 0 É PORQUE REALMENTE FOI APERTADO
+                *ponteiro_portb ^= 0x20;
+            }
         } 
         
         //Enquanto o botão estiver apertado ele vai se manter em 0, quando soltar o botão o anterior volta para 0x04

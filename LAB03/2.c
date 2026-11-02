@@ -12,33 +12,34 @@ volatile unsigned char *ponteiro_portb = (volatile unsigned char *) 0x25;
 volatile unsigned char *ponteiro_ddrd  = (volatile unsigned char *) 0x2A; 
 volatile unsigned char *ponteiro_pind  = (volatile unsigned char *) 0x29; 
 
-volatile unsigned char *ponteiro_pcicr = (volatile unsigned char *) 0x68;
-volatile unsigned char *ponteiro_pcmsk2 = (volatile unsigned char *) 0x6D; 
-volatile unsigned char *ponteiro_pcifr =  (volatile unsigned char *) 0x3B;
+//Para lidar com interrupção usando Pin Change Interrupts.
+volatile unsigned char *ponteiro_PCICR =  (volatile unsigned char *) 0x68;
+volatile unsigned char *ponteiro_PCMSK2 = (volatile unsigned char *) 0x6D; 
+volatile unsigned char *ponteiro_PCIFR =  (volatile unsigned char *) 0x3B;
 
 void config(void) {
-    cli();                                  // desativa as interrupções globais 
+    cli();                          //DESATIVA INTERUPÇOES GLOBAIS
 
-    *ponteiro_ddrb  |= 0x20;   
-    *ponteiro_portb &= ~0x20;  
-    *ponteiro_ddrd  &= ~0x04;               // pd2 habilitado como entrada
+    *ponteiro_ddrb  |= 0x20;        //LED COMO SAIDA
+    *ponteiro_portb &= ~0x20;       //LED COMEÇA DESLIGADO
+    *ponteiro_ddrd  &= ~0x04;       //BOTAO COMO SAIDA
 
-    *ponteiro_pcicr |= 0x04;                // ativa o PCIE2*/
-    *ponteiro_pcmsk2 |= 0x04;               // bit 2 do ponteiro
+    *ponteiro_PCICR |= 0x04;        //ATIVA PCIE2 (00000100)
+    *ponteiro_PCMSK2 |= 0x04;       //PCINT18 (?)
 
-    sei();                                  // habilita as interrupções globais
+    sei();                          //HABILITA INTERRUPÇOES GLOBAIS
 }
 
 ISR(PCINT2_vect) {
     estado = 1;                           // borda detectada
-    *ponteiro_pcmsk2 &= ~0x04;            // desativa temporariamente a máscara
-    *ponteiro_pcifr  |= 0x04;             // limpa a flag escrevendo 1 no bit PCIF2
+    *ponteiro_PCMSK2 &= ~0x04;            // desativa temporariamente a máscara
+    *ponteiro_PCIFR  |= 0x04;             // limpa a flag escrevendo 1 no bit PCIF2
 }
 
 unsigned char filtragem(void) {
     _delay_ms(20);
     
-    if ((*ponteiro_pind & 0x04) == 0) {     // se continuar em nível lógico baixo, a borda é válida
+    if ((*ponteiro_pind & 0x04) == 0) {   // se continuar em nível lógico baixo, a borda é válida
         return 1;
     }
     
@@ -52,8 +53,8 @@ void acionamento_led(void) {
         }
         
         estado = 0; 
-        *ponteiro_pcifr  |= 0x04;           // retorna ao estado inicial 
-        *ponteiro_pcmsk2 |= 0x04;           // reabilita a interrupção INT0
+        *ponteiro_PCIFR  |= 0x04;           // retorna ao estado inicial 
+        *ponteiro_PCMSK2 |= 0x04;           // reabilita a interrupção 
         
     }
 }

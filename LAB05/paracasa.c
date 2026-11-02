@@ -1,4 +1,4 @@
-/* Maria Letícia Gomes Braga dos Reis - 281318 e Ana Carolina Vieira de Araújo - 248734 */
+/* Maria Letícia Gomes Braga dos Reis - 281318, Ana Carolina Vieira de Araújo - 248734 */
 
 /*
  1) a cada  0,5 s (500 ciclos do temporizador) é realizada a mudança de estado do led 13
@@ -9,7 +9,7 @@
 
 /*
 os valores escolhidos foram:
-    parser: 64
+    Prescaler: 64
     valor máximo: 250
 
     Frequência = 16 MHZ/ 64 = 0,25 MHZ
@@ -30,7 +30,6 @@ os valores escolhidos foram:
 #include <util/delay.h>
 
 
-// Configurações 
 volatile unsigned char *ponteiro_UBRR0H = (volatile unsigned char *) 0xC5;
 volatile unsigned char *ponteiro_UBRR0L = (volatile unsigned char *) 0xC4;
 volatile unsigned char *ponteiro_UCSR0A = (volatile unsigned char *) 0xC0;
@@ -42,12 +41,12 @@ volatile unsigned char *ponteiro_TCCR0A = (volatile unsigned char *) 0x44;
 volatile unsigned char *ponteiro_TCCR0B = (volatile unsigned char *) 0x45;
 volatile unsigned char *ponteiro_TIMSK0 = (volatile unsigned char *) 0x6E;
 volatile unsigned char *ponteiro_OCR0A  = (volatile unsigned char *) 0x47;
-// Leds
 
-volatile unsigned char *ponteiro_ddrb  = (volatile unsigned char *) 0x24; // DDRB
-volatile unsigned char *ponteiro_portb = (volatile unsigned char *) 0x25; // PORTB
 
-int indice = 0;
+volatile unsigned char *ponteiro_ddrb  = (volatile unsigned char *) 0x24;
+volatile unsigned char *ponteiro_portb = (volatile unsigned char *) 0x25; 
+
+volatile int indice = 0;
 int tempo_led12 = 0;
 int tempo_led13 =0;
 char msg[] = "Atividade 5 – Interrupcoes periodicas do temporizador permitem a temporização de processos do sistema sem espera ativa! \n\n";
@@ -55,30 +54,29 @@ char msg[] = "Atividade 5 – Interrupcoes periodicas do temporizador permitem a
 void config(void){
     cli();
 
-    *ponteiro_UBRR0H = 0x00;                  // Baud rate 19200
-    *ponteiro_UBRR0L = 0x33;                  // Baud rate 19200 
-    *ponteiro_UCSR0A = 0x00;                  // Normal-speed 
-    *ponteiro_UCSR0B = 0x48;                  // Ativa TXEN0 (Bit 3), TXCIE0
-    *ponteiro_UCSR0C = 0x06;                  // Modo assíncrono, 8 bits de dados, sem paridade, 1 stop bit
+    *ponteiro_UBRR0H = 0x00;         //Baud rate 19200
+    *ponteiro_UBRR0L = 0x33;         //Baud rate 19200 
+    *ponteiro_UCSR0A = 0x00;         //Normal-speed 
+    *ponteiro_UCSR0B = 0x48;         //Ativa TXEN0 (Bit 3), TXCIE0
+    *ponteiro_UCSR0C = 0x06;         //Modo assíncrono, 8 bits de dados, sem paridade, 1 stop bit
     
-    *ponteiro_OCR0A  = 0xFA; // 250
+    *ponteiro_OCR0A  = 0xFA;         //250
     *ponteiro_TIMSK0 = 0x02;
-    *ponteiro_TCCR0B = 0x03; // prescaler = 64
+    *ponteiro_TCCR0B = 0x03;         //Prescaler = 64
     *ponteiro_TCCR0A = 0x02; 
 
+    //PORTB como SAÍDA:
+    *ponteiro_ddrb |= 0x20; 
+    *ponteiro_ddrb |= 0x10;
 
-    // Configuração dos pinos da PORTB como SAÍDA:
-    *ponteiro_ddrb |= 0x20; // led 13
-    *ponteiro_ddrb |= 0x10; // led 12
-    
-
-    // Todos leds desligados
-    *ponteiro_portb &= ~0x20; // led 13
-    *ponteiro_portb &= ~0x10; // led 12
+    //Leds desligados
+    *ponteiro_portb &= ~0x20;        //Led 13
+    *ponteiro_portb &= ~0x10;        //Led 12
 
     sei();
 }
 
+//Rotina de interrupção relacionada a interrupção temporal
 ISR(TIMER0_COMPA_vect){
     tempo_led12++;
     tempo_led13++;
@@ -93,7 +91,6 @@ ISR(TIMER0_COMPA_vect){
         tempo_led12 = 0;
     }  
 }
-
 
 ISR(USART_TX_vect){
     indice++;

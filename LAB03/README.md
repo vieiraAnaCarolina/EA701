@@ -1,3 +1,5 @@
+
+APENAS RASCUNHOS PORTAS
 ________________________________________________________________________________________________________________
 
 Conexões entre os displays dos leds e o microcontrolador:

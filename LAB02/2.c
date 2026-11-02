@@ -8,8 +8,7 @@ int main(void) {
 unsigned char *ponteiro_ddrb = (unsigned char *) 0x24;
 unsigned char *ponteiro_portb = (unsigned char *) 0x25;
 
-// Configura PB5 como saída
-*ponteiro_ddrb = *ponteiro_ddrb | 0x20;
+*ponteiro_ddrb = *ponteiro_ddrb | 0x20; //Configurar PB5 como saida (usar o ddrb)
 
 while (1) {
     

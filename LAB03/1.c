@@ -12,36 +12,37 @@ volatile unsigned char *ponteiro_portb = (volatile unsigned char *) 0x25;
 volatile unsigned char *ponteiro_ddrd  = (volatile unsigned char *) 0x2A; 
 volatile unsigned char *ponteiro_pind  = (volatile unsigned char *) 0x29; 
 
+//Para lidar com interrupção externa no INT0
 volatile unsigned char *ponteiro_EICRA = (volatile unsigned char *) 0x69; 
 volatile unsigned char *ponteiro_EIMSK = (volatile unsigned char *) 0x3D; 
-volatile unsigned char *ponteiro_EIFR =  (volatile unsigned char *) 0x1C;
+volatile unsigned char *ponteiro_EIFR =  (volatile unsigned char *) 0x3C;
 
 void config(void) {
-    cli();                               // desativa as interrupções globais 
+    cli();                         //DESATIVA INTERUPÇOES GLOBAIS
 
-    *ponteiro_ddrb  |= 0x20;             // led como saida
-    *ponteiro_portb &= ~0x20;            // led começa desligado
-    *ponteiro_ddrd  &= ~0x04;            // pd2 como entrada
+    *ponteiro_ddrb  |= 0x20;       //LED COMO SAIDA
+    *ponteiro_portb &= ~0x20;      //LED COMEÇA DESLIGADO
+    *ponteiro_ddrd  &= ~0x04;      //BOTÃO COMO ENTRADA
 
-    *ponteiro_EICRA |= 0x02;
-    *ponteiro_EICRA &= ~0x01;
-    *ponteiro_EIMSK |= 0x01;   
+    *ponteiro_EICRA |= 0x02;       //00000010
+    *ponteiro_EICRA &= ~0x01;      //Obriga o bit 0 ser baixo (garantia de segurança)
+    *ponteiro_EIMSK |= 0x01;       //00000001
 
-    sei();                               // habilita as interrupções globais
+    sei();                         //HABILITA INTERRUPÇOES GLOBAIS
 }
 
 
 
 ISR(INT0_vect) {
-    estado = 1;                          // borda de descida foi detectada
-    *ponteiro_EIMSK &= ~0x01;            // desabilita INT0 
+    estado = 1;                          //Borda de descida foi detectada
+    *ponteiro_EIMSK &= ~0x01;            //Desabilita INT0 
 }
 
 
 unsigned char filtragem(void) {
     _delay_ms(20);
     
-    if ((*ponteiro_pind & 0x04) == 0) {  // se continuar em nível lógico baixo, a borda é válida
+    if ((*ponteiro_pind & 0x04) == 0) {  //Se continuar em nível lógico baixo, a borda é válida
         return 1;
     }
     
@@ -54,9 +55,9 @@ void acionamento_led(void) {
             *ponteiro_portb ^= 0x20; 
         }
         
-        estado = 0;                      // retorna ao estado inicial
-        *ponteiro_EIFR  |= 0x01;         // zera as flags de interrupção
-        *ponteiro_EIMSK |= 0x01;         // reabilita a interrupção INT0
+        estado = 0;                      //Retorna ao estado inicial
+        *ponteiro_EIFR  |= 0x01;         //Zera as flags de interrupção
+        *ponteiro_EIMSK |= 0x01;         //Reabilita a interrupção INT0
         
     }
 }

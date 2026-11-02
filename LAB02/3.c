@@ -11,9 +11,8 @@ unsigned char *ponteiro_portb = (unsigned char *) 0x25;     //BIT 4 LED PORTB
 unsigned char *ponteiro_ddrd = (unsigned char *) 0x2A;      //BIT 2 BOTAO DDRD
 unsigned char *ponteiro_pind = (unsigned char *) 0x29;      //BIT 2 BOTAO PIND
 
-//LIGA DDBR DO BOTÃO E DO LED
-*ponteiro_ddrb |= 0x20;  //PERMITE ENTRADA BIT 5 LED
-*ponteiro_ddrd &= ~0x04; //em 0 = entrada para não dar problema
+*ponteiro_ddrb |= 0x20;  //LED COMO SAIDA
+*ponteiro_ddrd &= ~0x04; //BOTÃO COMO ENTRADA
 
 while (1) {
 
