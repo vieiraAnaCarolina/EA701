@@ -15,7 +15,7 @@ volatile unsigned char *ponteiro_UDR0   = (volatile unsigned char *) 0xC6;
 volatile unsigned char *ponteiro_ddrb   = (volatile unsigned char *) 0x24; 
 volatile unsigned char *ponteiro_portb = (volatile unsigned char *) 0x25; 
 
-volatile unsigned char rx_char = 'd';       
+volatile unsigned char caractere = 'd';       
 volatile unsigned char comando_ativo = 'd'; 
 volatile unsigned char novo_dado = 0;
 volatile unsigned char indice = 0;
