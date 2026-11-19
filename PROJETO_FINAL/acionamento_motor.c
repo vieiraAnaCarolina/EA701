@@ -75,7 +75,7 @@ void config(void){
     *ponteiro_UCSR0C = 0x06; 
 
    
-    *ponteiro_OCR0A  = 0xFA;         //250
+    *ponteiro_OCR0A  = 0xF9;         //249
     *ponteiro_TIMSK0 = 0x02;
     *ponteiro_TCCR0B = 0x03;         //Prescaler = 64
     *ponteiro_TCCR0A = 0x02;
@@ -87,8 +87,6 @@ void config(void){
     *ponteiro_TCCR2B = 0x03;         // prescaler 32
     *ponteiro_TCCR2A = 0xA3;         // Fast PWM, TOP = 0xFF
      
-
-
 
     *ponteiro_ddrb |= 0x08;   // PB3 (pino 11) saída
     *ponteiro_ddrd |= 0x08;   // PD3 (pino 3) saída
@@ -124,14 +122,11 @@ ISR(USART_TX_vect){
 void processar_entrada(void){
     switch (rx_char){
         case 'w':
-        
             comando_ativo = 'w';
             escolher_mensagem();
             *ponteiro_portc &= ~0x1E;
             *ponteiro_portc |= 0x18;
             estado = ST_FRENTE;
-          
-
             break;
         case 's':
             comando_ativo = 's';
@@ -146,7 +141,6 @@ void processar_entrada(void){
             *ponteiro_portc &= ~0x1E;
             *ponteiro_portc |= 0x14;
             tempo_giro = 0; // inicia a contagem quando inicia o giro
-            fim_giro = 0;
             estado = ST_GIRANDO;
             break;
         case 'd':
@@ -155,7 +149,6 @@ void processar_entrada(void){
             *ponteiro_portc &= ~0x1E;
             *ponteiro_portc |= 0x0A;
             tempo_giro = 0; // inicia a contagem quando inicia o giro
-            fim_giro = 0;
             estado = ST_GIRANDO;
             break;
         case 'q':
@@ -201,33 +194,27 @@ void maquina_estados(void){
             break;                                   // só espera um novo comando
  
         case ST_FRENTE:
-                 
-                *ponteiro_portc &= ~0x1E;
-                estado = ST_PARADO;
-                comando_ativo = 'o';
-                escolher_mensagem();
-            
+                           
             break;
  
         case ST_GIRANDO:
-            if (fim_giro){                           // passaram 50 ms
-                fim_giro = 0;
-                *ponteiro_portc &= ~0x1E;
-                estado = ST_PARADO;
-                comando_ativo = 'q';
+            if (tempo_giro >= 50) {     //  50 ms
+                *ponteiro_portc &= ~0x1E;  
+                estado = ST_PARADO;  
                 escolher_mensagem();
-            }
+
+            }; 
             break;
     }
 }
 
-//Rotina de interrupção relacionada a interrupção temporal (0,5 µs)
+
 ISR(TIMER0_COMPA_vect){
     tempo_msg++;
 
     if (estado == ST_GIRANDO){
         tempo_giro++;
-        if (tempo_giro >= 50) fim_giro = 1;         //  50 ms
+   
     }
 
     if(tempo_msg >= 1000){ // 1s
@@ -292,6 +279,7 @@ int main (void){
             processar_entrada();
         }
 
+        maquina_estados();
     }
 
     return 0;
