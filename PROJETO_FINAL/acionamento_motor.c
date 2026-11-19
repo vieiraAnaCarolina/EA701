@@ -69,7 +69,7 @@ void config(void){
     cli();
 
     *ponteiro_UBRR0H = 0x00;
-    *ponteiro_UBRR0L = 0x33;                 
+    *ponteiro_UBRR0L = 0x67;     // 103 -> 9600 baund rate            
     *ponteiro_UCSR0A = 0x00;                 
     *ponteiro_UCSR0B = 0xD8; 
     *ponteiro_UCSR0C = 0x06; 
@@ -110,6 +110,7 @@ ISR(USART_RX_vect){
     if (dado_recebido != '\n' && dado_recebido != '\r') {
         rx_char = dado_recebido;
         novo_dado = 1;
+        *ponteiro_UDR0 = rx_char;
     }
 }
 
@@ -123,21 +124,14 @@ ISR(USART_TX_vect){
 void processar_entrada(void){
     switch (rx_char){
         case 'w':
-            if (calculo_distancia() > 25 ){
-                comando_ativo = 'w';
-                escolher_mensagem();
-                *ponteiro_portc &= ~0x1E;
-                *ponteiro_portc |= 0x18;
-                estado = ST_FRENTE;
-            }
+        
+            comando_ativo = 'w';
+            escolher_mensagem();
+            *ponteiro_portc &= ~0x1E;
+            *ponteiro_portc |= 0x18;
+            estado = ST_FRENTE;
+          
 
-            else{ // se a distancia for menor q 25 cm envia o alerta OBSTACULO!
-                comando_ativo = 'o';
-                escolher_mensagem();
-                *ponteiro_portc &= ~0x1E;
-                estado = ST_PARADO;
-            }
-            
             break;
         case 's':
             comando_ativo = 's';
@@ -207,12 +201,12 @@ void maquina_estados(void){
             break;                                   // só espera um novo comando
  
         case ST_FRENTE:
-            if (ler_distancia() <= 25){              // obstáculo
+                 
                 *ponteiro_portc &= ~0x1E;
                 estado = ST_PARADO;
                 comando_ativo = 'o';
                 escolher_mensagem();
-            }
+            
             break;
  
         case ST_GIRANDO:
